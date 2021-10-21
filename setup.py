@@ -8,7 +8,7 @@ with open("requirements.txt", "r") as f:
 
 setup(
     name="breaker_aws",
-    version="0.0.1",
+    version="0.0.2",
     packages=find_packages(),
     package_data={},
     python_requires=">=3.5",

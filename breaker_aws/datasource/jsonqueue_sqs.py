@@ -1,18 +1,26 @@
 
 import time
+import os
 
 from breaker_core.datasource.jsonqueue import Jsonqueue
 from breaker_aws.tools_sqs import ToolsSqs
 
 class JsonqueueSqs(Jsonqueue):
 
-    def __init__(self, aws_name_region, aws_access_key_id, aws_secret_access_key, id_queue) -> None:
+    def __init__(self, aws_name_region, id_queue) -> None:
         self.aws_name_region = aws_name_region
-        self.aws_access_key_id = aws_access_key_id
-        self.aws_secret_access_key = aws_secret_access_key
+        if not 'AWS_ACCESS_KEY_ID' in os.environ:
+            raise Exception('missing environment_variable: AWS_ACCESS_KEY_ID')
+        else:
+            self.aws_access_key_id = os.environ['AWS_ACCESS_KEY_ID']
+
+        if not 'AWS_SECRET_ACCESSS_KEY' in os.environ:
+            raise Exception('missing environment_variable: AWS_SECRET_ACCESSS_KEY')
+        else:
+            self.aws_secret_access_key = os.environ['AWS_SECRET_ACCESSS_KEY']
         self.id_queue = id_queue
 
-        client_sqs, resource_sqs = ToolsSqs.create_client_and_resource_sqs(aws_name_region, aws_access_key_id, aws_secret_access_key)
+        client_sqs, resource_sqs = ToolsSqs.create_client_and_resource_sqs(self.aws_name_region, self.aws_access_key_id, self.aws_secret_access_key)
         self.client_sqs = client_sqs 
         self.resource_sqs = resource_sqs
 
@@ -48,27 +56,21 @@ class JsonqueueSqs(Jsonqueue):
                 timeout_ms -= sleep_increment_ms
                 time.sleep(sleep_increment_ms)
 
-
-
     def enqueue(self, dict_json:dict) -> None:
         return ToolsSqs.message_send_json(self.client_sqs, self.resource_sqs, self.id_queue, dict_json)
 
 
     def to_dict(self):
-        dict_bytearraysource = {}
-        dict_bytearraysource['type_jsonqueue'] = 'JsonqueueSqs'
-        dict_bytearraysource['aws_name_region'] = self.aws_name_region
-        dict_bytearraysource['aws_access_key_id'] = self.aws_access_key_id
-        dict_bytearraysource['aws_secret_access_key'] = self.aws_secret_access_key
-        dict_bytearraysource['id_queue'] = self.id_queue
-        return dict_bytearraysource
+        dict_bytessource = {}
+        dict_bytessource['type_jsonqueue'] = 'JsonqueueSqs'
+        dict_bytessource['aws_name_region'] = self.aws_name_region
+        dict_bytessource['id_queue'] = self.id_queue
+        return dict_bytessource
 
     @staticmethod
-    def from_dict(dict_bytearraysource):
-        if not dict_bytearraysource['type_jsonqueue'] == 'JsonqueueSqs':
+    def from_dict(dict_bytessource):
+        if not dict_bytessource['type_jsonqueue'] == 'JsonqueueSqs':
             raise Exception('incorrect_dict_type')
         return JsonqueueSqs( 
-            dict_bytearraysource['aws_name_region'],
-            dict_bytearraysource['aws_access_key_id'],
-            dict_bytearraysource['aws_secret_access_key'], 
-            dict_bytearraysource['id_queue'])
+            dict_bytessource['aws_name_region'],
+            dict_bytessource['id_queue'])
