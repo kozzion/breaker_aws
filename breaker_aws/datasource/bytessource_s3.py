@@ -1,4 +1,5 @@
 import os
+from typing import List
 from breaker_core.datasource.bytessource import Bytessource
 from breaker_aws.tools_s3 import ToolsS3
 
@@ -22,37 +23,61 @@ class BytessourceS3(Bytessource):
         self.name_bucket = name_bucket
         self.prefix_root = prefix_root
         self.list_key = list_key
-        self.name_object = prefix_root + '/' + '/'.join(list_key)
+        self.name_object = prefix_root + '/'.join(list_key)
 
         client_s3, resource_s3 = ToolsS3.create_client_and_resource_s3(self.aws_name_region, self.aws_access_key_id, self.aws_secret_access_key)
         self.client_s3 = client_s3 
         self.resource_s3 = resource_s3
 
+    def _prefix(self):
+        prefix = self.prefix_root  
+        if 0 < len(self.list_key):
+            prefix += '/'.join(self.list_key) + '/'
+        return prefix
     def exists(self) -> bool:
         return ToolsS3.object_exists(self.client_s3, self.resource_s3, self.name_bucket, self.name_object)
 
-    def save(self, bytearray_object:bytearray) -> None:
+    def list_shallow(self) -> None:
+        prefix = self._prefix()
+        print(prefix)
+        list_name_object = ToolsS3.list_name_object_for_prefix(self.client_s3, self.resource_s3, self.name_bucket, prefix)
+        list_list_key = []
+        for name_object in list_name_object:
+            postfix = name_object[len(prefix):]
+            if not '/' in name_object[len(prefix):]:
+                list_list_key.append(postfix.split('/'))
+        return list_list_key
+
+    def list_deep(self) -> None:
+        prefix = self._prefix()
+        print(prefix)
+        list_name_object = ToolsS3.list_name_object_for_prefix(self.client_s3, self.resource_s3, self.name_bucket, prefix)
+        list_list_key = []
+        for name_object in list_name_object:
+            postfix = name_object[len(prefix):]
+            list_list_key.append(postfix.split('/'))
+        return list_list_key
+
+    def write(self, bytearray_object:bytearray) -> None:
         ToolsS3.object_save(self.client_s3, self.resource_s3, self.name_bucket, self.name_object, bytearray_object)
 
-    def load(self) -> bytearray:
+    def read(self) -> bytearray:
         return ToolsS3.object_load(self.client_s3, self.resource_s3, self.name_bucket, self.name_object)
 
     def delete(self) -> None:
         ToolsS3.object_delete(self.client_s3, self.resource_s3, self.name_bucket, self.name_object)
 
-    def join(self, list_key:list[str]):
+    def join(self, list_key:List[str]):
         self.validate_list_key(list_key)
         list_key_extended = self.list_key.copy()
         list_key_extended.extend(list_key)
         return BytessourceS3(
             self.aws_name_region, 
-            self.aws_access_key_id, 
-            self.aws_secret_access_key, 
             self.name_bucket, 
             self.prefix_root,
             list_key_extended)
 
-    def list_for_prefix(self, list_key_prefix:list[str]) -> list[list[str]]:
+    def list_for_prefix(self, list_key_prefix:List[str]) -> 'List[List[str]]':
         self.validate_list_key(list_key_prefix)
         prefix = '/'.join(list_key_prefix)
         list_name_object = ToolsS3.list_name_object_for_prefix(self.client_s3, self.resource_s3, self.name_bucket, prefix)
