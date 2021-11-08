@@ -5,25 +5,18 @@ from breaker_aws.tools_s3 import ToolsS3
 
 class BytessourceS3(Bytessource):
 
-    def __init__(self, aws_name_region, name_bucket, prefix_root, list_key) -> None:
+    def __init__(self, config:dict, aws_name_region, name_bucket, prefix_root, list_key) -> None:
+        super().__init__(config)
         self.validate_list_key(list_key)
- 
         self.aws_name_region = aws_name_region
-        if not 'AWS_ACCESS_KEY_ID' in os.environ:
-            raise Exception('missing environment_variable: AWS_ACCESS_KEY_ID')
-        else:
-            self.aws_access_key_id = os.environ['AWS_ACCESS_KEY_ID']
 
-        if not 'AWS_SECRET_ACCESSS_KEY' in os.environ:
-            raise Exception('missing environment_variable: AWS_SECRET_ACCESSS_KEY')
-        else:
-            self.aws_secret_access_key = os.environ['AWS_SECRET_ACCESSS_KEY']
-  
- 
         self.name_bucket = name_bucket
         self.prefix_root = prefix_root
         self.list_key = list_key
         self.name_object = prefix_root + '/'.join(list_key)
+
+        self.aws_access_key_id = self.config['aws_access_key_id']
+        self.aws_secret_access_key = self.config['aws_secret_access_key']
 
         client_s3, resource_s3 = ToolsS3.create_client_and_resource_s3(self.aws_name_region, self.aws_access_key_id, self.aws_secret_access_key)
         self.client_s3 = client_s3 
@@ -72,6 +65,7 @@ class BytessourceS3(Bytessource):
         list_key_extended = self.list_key.copy()
         list_key_extended.extend(list_key)
         return BytessourceS3(
+            self.config,
             self.aws_name_region, 
             self.name_bucket, 
             self.prefix_root,
@@ -86,7 +80,7 @@ class BytessourceS3(Bytessource):
             list_list_key.append(name_object.split('/'))
         return list_list_key
        
-    def to_dict(self):
+    def to_dict(self) -> 'dict':
         dict_bytessource = {}
         dict_bytessource['type_bytessource'] = 'BytessourceS3'
         dict_bytessource['aws_name_region'] = self.aws_name_region
@@ -96,10 +90,11 @@ class BytessourceS3(Bytessource):
         return dict_bytessource
 
     @staticmethod
-    def from_dict(dict_bytessource):
+    def from_dict(config:dict, dict_bytessource) -> 'BytessourceS3':
         if not dict_bytessource['type_bytessource'] == 'BytessourceS3':
             raise Exception('incorrect_dict_type')
         return BytessourceS3( 
+            config,
             dict_bytessource['aws_name_region'],
             dict_bytessource['name_bucket'],
             dict_bytessource['prefix_root'],

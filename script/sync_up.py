@@ -12,7 +12,8 @@ from breaker_core.datasource.bytessource import Bytessource
 aws_name_region = 'eu-west-1'
 name_bucket = 'breaker-data-0000'
 list_key_prefix = ['breaker_discord', 'bot_dev']
-bytessource_s3 = BytessourceS3(aws_name_region, name_bucket, '', list_key_prefix)
+config = None
+bytessource_s3 = BytessourceS3(config, aws_name_region, name_bucket, '', list_key_prefix)
 bytessource_file = BytessourceFile(Path(os.environ['PATH_DIR_DATA_BREAKER']), list_key_prefix)
 
 

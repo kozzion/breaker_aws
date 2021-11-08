@@ -4,22 +4,17 @@ import time
 
 from pathlib import Path
 from breaker_aws.tools_sqs import ToolsSqs
-from breaker_aws.jsonqueue_sqs import JsonqueueSqs
+from breaker_aws.datasource.jsonqueue_sqs import JsonqueueSqs
 
 
-path_file_config = Path('config.cfg')
-with path_file_config.open('r') as file:
-    dict_config = json.load(file)
-
-name_region = dict_config['aws_name_region']
-aws_access_key_id = dict_config['aws_access_key_id']
-aws_secret_access_key = dict_config['aws_secret_access_key']
-name_bucket = dict_config['aws_name_bucket']
-
-client_sqs, resource_sqs = ToolsSqs.create_client_and_resource_sqs(name_region, aws_access_key_id, aws_secret_access_key)
+path_file_config_breaker = Path(os.getenv('PATH_FILE_CONFIG_BREAKER_AWS_DEV', '/config/config.cfg'))
+with open(path_file_config_breaker, 'r') as file:
+    config_breaker = json.load(file)
+aws_name_region = 'eu-west-1'
+name_bucket = 'breaker-data-0000'
 id_queue = 'qu-breakerawstest'
 
-queue = JsonqueueSqs(client_sqs, resource_sqs, id_queue)
+queue = JsonqueueSqs(config_breaker, aws_name_region, id_queue)
 
 if not queue.exists():
     queue.create()
