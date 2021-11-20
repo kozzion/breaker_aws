@@ -44,6 +44,9 @@ class ToolsS3:
     def object_delete(client_s3, resource_s3, name_bucket:str, name_object:str):
         resource_s3.Object(name_bucket, name_object).delete()
 
+    @staticmethod
+    def object_size(client_s3, resource_s3,name_bucket:str, name_object:str):
+        return resource_s3.Bucket(name_bucket).Object(name_object).content_length
 
     @staticmethod
     def list_name_object_for_prefix(client_s3, resource_s3, name_bucket, prefix):

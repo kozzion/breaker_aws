@@ -5,7 +5,7 @@ from breaker_aws.tools_s3 import ToolsS3
 
 class BytessourceS3(Bytessource):
 
-    def __init__(self, config:dict, aws_name_region, name_bucket, prefix_root, list_key) -> None:
+    def __init__(self, config:dict, aws_name_region, name_bucket, prefix_root, list_key=[]) -> None:
         super().__init__(config)
         self.validate_list_key(list_key)
         self.aws_name_region = aws_name_region
@@ -27,6 +27,7 @@ class BytessourceS3(Bytessource):
         if 0 < len(self.list_key):
             prefix += '/'.join(self.list_key) + '/'
         return prefix
+
     def exists(self) -> bool:
         return ToolsS3.object_exists(self.client_s3, self.resource_s3, self.name_bucket, self.name_object)
 
@@ -59,6 +60,9 @@ class BytessourceS3(Bytessource):
 
     def delete(self) -> None:
         ToolsS3.object_delete(self.client_s3, self.resource_s3, self.name_bucket, self.name_object)
+
+    def size(self):
+        return ToolsS3.object_size(self.client_s3, self.resource_s3, self.name_bucket, self.name_object)
 
     def join(self, list_key:List[str]):
         self.validate_list_key(list_key)

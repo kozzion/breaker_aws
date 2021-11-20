@@ -7,11 +7,11 @@ from breaker_aws.tools_sqs import ToolsSqs
 
 class JsonqueueSqs(Jsonqueue):
 
-    def __init__(self, config:dict, aws_name_region:str, id_queue:str) -> None:
+    def __init__(self, config:dict, id_queue:str) -> None:
         super().__init__(config)
-        self.aws_name_region = aws_name_region
         self.id_queue = id_queue
 
+        self.aws_name_region = self.config['aws_name_region']
         self.aws_access_key_id = self.config['aws_access_key_id']
         self.aws_secret_access_key = self.config['aws_secret_access_key']
 
@@ -58,7 +58,6 @@ class JsonqueueSqs(Jsonqueue):
     def to_dict(self) -> 'dict':
         dict_bytessource = {}
         dict_bytessource['type_jsonqueue'] = 'JsonqueueSqs'
-        dict_bytessource['aws_name_region'] = self.aws_name_region
         dict_bytessource['id_queue'] = self.id_queue
         return dict_bytessource
 
@@ -68,5 +67,4 @@ class JsonqueueSqs(Jsonqueue):
             raise Exception('incorrect_dict_type')
         return JsonqueueSqs( 
             config,
-            dict_bytessource['aws_name_region'],
             dict_bytessource['id_queue'])

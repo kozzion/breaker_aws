@@ -117,6 +117,10 @@ class SystemS3(object):
         except ClientError:
             return False
 
+
+    def object_size(self, name_bucket, name_object):
+        return self.resource_s3.Bucket(name_bucket).Object(name_object).content_length
+
     def bucket_delete(self, name_bucket):
         self.client_s3.delete_bucket(Bucket=name_bucket)
 
