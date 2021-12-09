@@ -35,7 +35,7 @@ class JsonqueueSqs(Jsonqueue):
         return ToolsSqs.message_recieve_json(self.client_sqs, self.resource_sqs, self.id_queue)
          
     #TODO move to parent? aws specific awaiters exist
-    def dequeue_blocking(self, timeout_ms:int=-1, *, sleep_increment_ms:int=10) -> dict:
+    def dequeue_blocking(self, timeout_ms:int=-1, *, sleep_increment_ms:int=5000) -> dict:
         while True:
             dict_json = self.dequeue(self)
             if not dict_json is None:

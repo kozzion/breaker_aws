@@ -38,6 +38,7 @@ class ToolsSqs(object):
     def queue_exists(client_sqs, resourse_sqs, id_queue):
         try:
             client_sqs.get_queue_url(QueueName=id_queue)
+            print(client_sqs.get_queue_url(QueueName=id_queue))
         except client_sqs.exceptions.QueueDoesNotExist:
             return False
         return True

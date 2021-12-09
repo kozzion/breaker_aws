@@ -7,6 +7,8 @@ from breaker_core.tools_general import ToolsGeneral
 
 from breaker_aws.client.client_polly import ClientPolly
 
+
+
 path_file_config_breaker = Path(os.getenv('PATH_FILE_CONFIG_BREAKER_AWS_DEV', '/config/config.cfg'))
 with open(path_file_config_breaker, 'r') as file:
     config_breaker = json.load(file)

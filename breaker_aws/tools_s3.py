@@ -26,8 +26,9 @@ class ToolsS3:
         except ClientError as client_error:
             if client_error.response['Error']['Code'] == "404":
                 return False
+            elif client_error.response['Error']['Code'] == "403":
+                raise Exception('Access denied')
             else:
-                # Something else has gone wrong.
                 raise Exception('fail')
         else:
             return True
