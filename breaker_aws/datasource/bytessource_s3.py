@@ -33,7 +33,6 @@ class BytessourceS3(Bytessource):
 
     def list_shallow(self) -> None:
         prefix = self._prefix()
-        print(prefix)
         list_name_object = ToolsS3.list_name_object_for_prefix(self.client_s3, self.resource_s3, self.name_bucket, prefix)
         list_list_key = []
         for name_object in list_name_object:
@@ -44,7 +43,6 @@ class BytessourceS3(Bytessource):
 
     def list_deep(self) -> None:
         prefix = self._prefix()
-        print(prefix)
         list_name_object = ToolsS3.list_name_object_for_prefix(self.client_s3, self.resource_s3, self.name_bucket, prefix)
         list_list_key = []
         for name_object in list_name_object:

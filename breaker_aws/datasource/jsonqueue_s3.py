@@ -43,23 +43,6 @@ class JsonqueueS3(Jsonqueue):
             bytessource_item.delete()
             return dict_json
 
-    #TODO move to parent? aws specific awaiters exist
-    def dequeue_blocking(self, timeout_ms:int=-1, *, sleep_increment_ms:int=5000) -> dict:
-        while True:
-            dict_json = self.dequeue(self)
-            if not dict_json is None:
-                return dict_json
-            elif timeout_ms == -1:
-                continue
-            elif timeout_ms == 0:
-                return None
-            elif (timeout_ms <= sleep_increment_ms):
-                timeout_ms = 0
-                time.sleep(timeout_ms)
-            else:
-                timeout_ms -= sleep_increment_ms
-                time.sleep(sleep_increment_ms)
-
     def enqueue(self, dict_json:dict) -> None:
         return self.bytessource.join([str(int(time.time() * 1000))]).write_json(dict_json)
 
