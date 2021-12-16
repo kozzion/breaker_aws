@@ -34,7 +34,6 @@ class JsonqueueSqs(Jsonqueue):
     def dequeue(self) -> dict:
         return ToolsSqs.message_recieve_json(self.client_sqs, self.resource_sqs, self.id_queue)
         
-
     def enqueue(self, dict_json:dict) -> None:
         return ToolsSqs.message_send_json(self.client_sqs, self.resource_sqs, self.id_queue, dict_json)
 

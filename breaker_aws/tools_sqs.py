@@ -78,8 +78,6 @@ class ToolsSqs(object):
     
     @staticmethod
     def message_send(client_sqs, resourse_sqs, id_queue, bytearray_message):
-        print('here_send_0')
-        print(bytearray_message)
         url_queue = client_sqs.get_queue_url(QueueName=id_queue)['QueueUrl']
         client_sqs.send_message(QueueUrl=url_queue, MessageBody=bytearray_message)
 
