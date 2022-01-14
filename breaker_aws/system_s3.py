@@ -212,10 +212,17 @@ class SystemS3(object):
         list_name_object = self.list_name_object_for_prefix(name_bucket, prefix)
         return [name_object.split('/')[-1] for name_object in list_name_object]
 
-    def upload_dir_for_list_path(self, name_bucket, list_path):
-        path_dir_source = ''
-        prefix = ''
-        self.upload_dir_for_prefix(name_bucket, path_dir_source, prefix)
+    def upload_for_list_path(self, path_source, name_bucket, list_path, overwrite='always'):
+        if os.path.isdir(path_source):
+            prefix = '/'.join(list_path)
+            self.upload_dir_for_prefix(name_bucket, path_source, prefix)
+        elif os.path.isfile():
+            object_target = '/'.join(list_path)
+            runnable = RunnableUpload(self, path_source, name_bucket, object_target, overwrite)
+            runnable.run()
+        else:
+            raise Exception('No such file or directory')
+ 
 
     def upload_dir_for_prefix(self, path_dir_source, name_bucket_target, prefix_target='', overwrite='always', report_progress=True):
 
