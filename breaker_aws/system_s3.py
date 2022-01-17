@@ -6,7 +6,6 @@ from typing import List
 
 from botocore.exceptions import ClientError
 
-from breaker_aws.config_aws import ConfigAws
 from breaker_core.tools_general import ToolsGeneral as tg
 
 #TODO add feedback option from system instancegroup
@@ -74,11 +73,6 @@ class SystemS3(object):
         super(SystemS3, self).__init__()
         self.client_s3 = client_s3
         self.resource_s3 = resource_s3
-
-    @staticmethod
-    def from_dict_config(dict_config_aws:dict) -> 'SystemS3':
-        config = ConfigAws(dict_config_aws)
-        return SystemS3(config.client_s3(), config.resource_s3())
 
     def bucket_create(self, name_bucket):
         self.client_s3.create_bucket(Bucket=name_bucket, CreateBucketConfiguration={'LocationConstraint': 'eu-west-1'})
