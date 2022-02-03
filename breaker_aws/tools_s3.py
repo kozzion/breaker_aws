@@ -34,8 +34,18 @@ class ToolsS3:
             return True
 
     @staticmethod
-    def object_save(client_s3, resource_s3, name_bucket:str, name_object:str, bytearray_object:bytearray):
-        resource_s3.Object(name_bucket, name_object).put(Body=bytearray_object)
+    def object_save(client_s3, resource_s3, name_bucket:str, name_object:str, bytearray_object:bytearray, is_public:bool=False):
+        object_s3 = resource_s3.Object(name_bucket, name_object)
+        object_s3.put(Body=bytearray_object)
+        ToolsS3.object_set_public(client_s3, resource_s3, name_bucket, name_object, is_public)
+
+    @staticmethod      
+    def object_set_public(client_s3, resource_s3, name_bucket:str, name_object:str, is_public:bool=False) -> None:
+        object_s3_acl = resource_s3.ObjectAcl(name_bucket, name_object)
+        if is_public:
+            object_s3_acl.put(ACL='public-read')
+        else:
+            object_s3_acl.put(ACL='private')
 
     @staticmethod
     def object_load(client_s3, resource_s3, name_bucket:str, name_object:str):
