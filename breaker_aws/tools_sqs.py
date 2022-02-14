@@ -30,12 +30,15 @@ class ToolsSqs(object):
         return list_name_queue
 
     @staticmethod
-    def queue_create(client_sqs, resourse_sqs, id_queue):
-        client_sqs.create_queue(QueueName=id_queue)
+    def queue_create(client_sqs, resourse_sqs, id_queue:str, is_fifo:bool=True):
+        if is_fifo:
+            client_sqs.create_queue(QueueName=id_queue + '.fifo', Attributes={'FifoQueue': 'true'})
+        else:
+            client_sqs.create_queue(QueueName=id_queue)
 
 
     @staticmethod
-    def queue_exists(client_sqs, resourse_sqs, id_queue):
+    def queue_exists(client_sqs, resourse_sqs, id_queue:str):
         try:
             client_sqs.get_queue_url(QueueName=id_queue)
         except client_sqs.exceptions.QueueDoesNotExist:
@@ -43,17 +46,17 @@ class ToolsSqs(object):
         return True
 
     @staticmethod
-    def queue_clear(client_sqs, resourse_sqs, id_queue):
+    def queue_clear(client_sqs, resourse_sqs, id_queue:str):
         url_queue = client_sqs.get_queue_url(QueueName=id_queue)['QueueUrl']
         client_sqs.purge_queue(QueueUrl=url_queue)
 
     @staticmethod
-    def queue_delete(client_sqs, resourse_sqs, id_queue):
+    def queue_delete(client_sqs, resourse_sqs, id_queue:str):
         url_queue = client_sqs.get_queue_url(QueueName=id_queue)['QueueUrl']
         client_sqs.delete_queue(QueueUrl=url_queue)
 
     @staticmethod
-    def message_recieve(client_sqs, resourse_sqs, id_queue, delete_after_reception=True):
+    def message_recieve(client_sqs, resourse_sqs, id_queue:str, delete_after_reception:bool=True):
         url_queue = client_sqs.get_queue_url(QueueName=id_queue)['QueueUrl']
         response = client_sqs.receive_message(QueueUrl=url_queue, MaxNumberOfMessages=1) # adjust MaxNumberOfMessages if needed
         if 'Messages' in response:
@@ -63,7 +66,7 @@ class ToolsSqs(object):
             return None, None, None
 
     @staticmethod
-    def message_recieve_json(client_sqs, resourse_sqs, id_queue, delete_after_reception=True):
+    def message_recieve_json(client_sqs, resourse_sqs, id_queue:str, delete_after_reception:bool=True):
         bytearray_message, id_message, handle_message = ToolsSqs.message_recieve(client_sqs, resourse_sqs, id_queue, delete_after_reception)
         if bytearray_message is None:
             return None

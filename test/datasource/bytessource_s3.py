@@ -42,8 +42,8 @@ if __name__ == '__main__':
     #
     # verify public read acl
     #
-    # dict_bpab = ToolsS3.bucket_public_access_block_load(config.client_s3(), config.resource_s3(), name_bucket)
-    # print(dict_bpab)
+    dict_bpab = ToolsS3.bucket_public_access_block_load(config.client_s3(), config.resource_s3(), name_bucket)
+    print(dict_bpab)
     ToolsS3.bucket_public_access_block_save(config.client_s3(), config.resource_s3(), name_bucket, 
         BlockPublicAcls=False,
         IgnorePublicAcls=False)
@@ -65,9 +65,6 @@ if __name__ == '__main__':
     bytessource.is_public_save(False)
     print('should now be prive')
     print(requests.get(url_public).status_code)
-
-
-    bytessource.write(bytearray('test'.encode('utf-8')), )
 
     # s3_resource = boto3.resource('s3')
     # bucket_policy = s3_resource.BucketPolicy('bucket_name')
