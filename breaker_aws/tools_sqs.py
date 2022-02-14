@@ -1,6 +1,8 @@
 import json
 import boto3
 
+from breaker_core.tools_general import ToolsGeneral
+
 class ToolsSqs(object):
 
     @staticmethod
@@ -32,7 +34,10 @@ class ToolsSqs(object):
     @staticmethod
     def queue_create(client_sqs, resourse_sqs, id_queue:str, is_fifo:bool=True):
         if is_fifo:
-            client_sqs.create_queue(QueueName=id_queue + '.fifo', Attributes={'FifoQueue': 'true'})
+            if not id_queue.endswith('.fifo'):
+                raise Exception('id_queue for a fifo queue must end with ".fifo"')
+            # if we turn on  'ContentBasedDeduplication':'true' it becomes really tricky to run tests
+            client_sqs.create_queue(QueueName=id_queue , Attributes={'FifoQueue':'true'})
         else:
             client_sqs.create_queue(QueueName=id_queue)
 
@@ -79,10 +84,13 @@ class ToolsSqs(object):
         client_sqs.delete_message(QueueUrl=url_queue, ReceiptHandle=receipt_handle)
     
     @staticmethod
-    def message_send(client_sqs, resourse_sqs, id_queue, bytearray_message):
+    def message_send(client_sqs, resourse_sqs, id_queue, bytearray_message, message_group_id=None):
         url_queue = client_sqs.get_queue_url(QueueName=id_queue)['QueueUrl']
-        client_sqs.send_message(QueueUrl=url_queue, MessageBody=bytearray_message)
+        if message_group_id is None:
+            client_sqs.send_message(QueueUrl=url_queue, MessageBody=bytearray_message)
+        else:
+            client_sqs.send_message(QueueUrl=url_queue, MessageBody=bytearray_message, MessageGroupId=message_group_id, MessageDeduplicationId=ToolsGeneral.random_string(16))
 
     @staticmethod
-    def message_send_json(client_sqs, resourse_sqs, id_queue, json_message):
-        ToolsSqs.message_send(client_sqs, resourse_sqs, id_queue, json.dumps(json_message))
+    def message_send_json(client_sqs, resourse_sqs, id_queue, json_message, message_group_id=None):
+        ToolsSqs.message_send(client_sqs, resourse_sqs, id_queue, json.dumps(json_message), message_group_id)

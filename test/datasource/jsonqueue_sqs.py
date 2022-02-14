@@ -14,8 +14,7 @@ aws_name_region = 'eu-west-1'
 name_bucket = 'breaker-data-0000'
 id_queue = 'qu-breakerawstest'
 
-queue = JsonqueueSqs(config_breaker, aws_name_region, id_queue)
-
+queue = JsonqueueSqs(config_breaker, id_queue, True)
 if not queue.exists():
     queue.create()
 print(queue.exists())

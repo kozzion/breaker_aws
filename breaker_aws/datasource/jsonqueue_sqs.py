@@ -7,9 +7,12 @@ from breaker_aws.tools_sqs import ToolsSqs
 
 class JsonqueueSqs(Jsonqueue):
 
-    def __init__(self, config:dict, id_queue:str) -> None:
+    def __init__(self, config:dict, id_queue:str, is_fifo:bool=True) -> None:
         super().__init__(config)
         self.id_queue = id_queue
+        self.is_fifo = is_fifo
+        if is_fifo:
+            self.id_queue += '.fifo'
 
         self.aws_name_region = self.config['aws_name_region']
         self.aws_access_key_id = self.config['aws_access_key_id']
@@ -23,7 +26,7 @@ class JsonqueueSqs(Jsonqueue):
         return ToolsSqs.queue_exists(self.client_sqs, self.resource_sqs, self.id_queue)
 
     def create(self) -> None:
-        return ToolsSqs.queue_create(self.client_sqs, self.resource_sqs, self.id_queue)
+        return ToolsSqs.queue_create(self.client_sqs, self.resource_sqs, self.id_queue, self.is_fifo)
     
     def delete(self) -> None:
         return ToolsSqs.queue_delete(self.client_sqs, self.resource_sqs, self.id_queue)
@@ -35,7 +38,10 @@ class JsonqueueSqs(Jsonqueue):
         return ToolsSqs.message_recieve_json(self.client_sqs, self.resource_sqs, self.id_queue)
         
     def enqueue(self, dict_json:dict) -> None:
-        return ToolsSqs.message_send_json(self.client_sqs, self.resource_sqs, self.id_queue, dict_json)
+        if self.is_fifo:
+            return ToolsSqs.message_send_json(self.client_sqs, self.resource_sqs, self.id_queue, dict_json, 'default')
+        else:
+            return ToolsSqs.message_send_json(self.client_sqs, self.resource_sqs, self.id_queue, dict_json)
 
 
     def to_dict(self) -> 'dict':
