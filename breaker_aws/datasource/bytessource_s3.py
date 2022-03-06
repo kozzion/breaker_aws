@@ -101,7 +101,6 @@ class BytessourceS3(Bytessource):
         dict_bytessource['name_bucket'] = self.name_bucket
         dict_bytessource['prefix_root'] = self.prefix_root
         dict_bytessource['list_key'] = self.list_key.copy()
-        dict_bytessource['is_public'] = self._is_public
         return dict_bytessource
 
     @staticmethod
